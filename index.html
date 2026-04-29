@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Calculadora Pro | Nexus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: radial-gradient(circle at 20% 30%, #0a0f1e, #03060c);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animação de fundo com partículas e gradiente dinâmico */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: linear-gradient(125deg, #0a0f1e, #0b1525, #0f212f, #0a1828);
+            background-size: 400% 400%;
+            animation: auraFlow 18s ease infinite;
+        }
+
+        @keyframes auraFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Grade de linhas neon animadas */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, rgba(0, 255, 100, 0.05) 0px, rgba(0, 255, 100, 0.05) 1px, transparent 1px, transparent 40px),
+                repeating-linear-gradient(90deg, rgba(0, 255, 100, 0.05) 0px, rgba(0, 255, 100, 0.05) 1px, transparent 1px, transparent 40px);
+            z-index: -1;
+            pointer-events: none;
+            animation: gridPulse 8s infinite alternate;
+        }
+
+        @keyframes gridPulse {
+            0% { opacity: 0.2; transform: scale(1); }
+            100% { opacity: 0.6; transform: scale(1.02); }
+        }
+
+        /* Efeito de glow flutuante (partículas) */
+        .floating-particles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, rgba(0, 255, 150, 0.4), transparent);
+            border-radius: 50%;
+            filter: blur(2px);
+            animation: floatParticle linear infinite;
+        }
+
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(100vh) translateX(-10px) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.4; }
+            100% {
+                transform: translateY(-20vh) translateX(10px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Container da calculadora com efeito vidro fosco e borda neon pulsante */
+        .calculator-container {
+            perspective: 800px;
+        }
+
+        .app {
+            background: rgba(8, 12, 20, 0.75);
+            backdrop-filter: blur(12px);
+            border-radius: 42px;
+            padding: 22px 20px 28px 20px;
+            width: 370px;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.8),
+                0 0 0 1px rgba(0, 255, 100, 0.2),
+                0 0 0 4px rgba(0, 0, 0, 0.3),
+                0 0 25px rgba(0, 255, 150, 0.3);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 255, 120, 0.5);
+            animation: borderPulse 3s infinite alternate;
+        }
+
+        @keyframes borderPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 100, 0.3), 0 25px 35px -12px black;
+                border-color: rgba(0, 255, 100, 0.3);
+            }
+            100% {
+                box-shadow: 0 0 0 5px rgba(0, 255, 100, 0.15), 0 35px 45px -12px black;
+                border-color: rgba(0, 255, 180, 0.8);
+            }
+        }
+
+        /* Display principal com efeito cyberpunk */
+        .display-section {
+            margin-bottom: 25px;
+        }
+
+        .display {
+            background: #03060cee;
+            color: #0eff00;
+            font-size: 2.7rem;
+            font-weight: 700;
+            padding: 20px 18px;
+            border-radius: 28px;
+            text-align: right;
+            letter-spacing: 2px;
+            font-family: 'Orbitron', monospace;
+            box-shadow: 
+                inset 0 0 20px rgba(0, 255, 0, 0.3),
+                0 8px 14px rgba(0, 0, 0, 0.4);
+            border: 1px solid #0f3a2a;
+            transition: all 0.1s ease;
+            word-break: break-word;
+            min-height: 98px;
+            line-height: 1.2;
+            text-shadow: 0 0 3px #0f0;
+        }
+
+        /* Relógio digital elegante */
+        .clock {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            background: rgba(0, 10, 10, 0.6);
+            padding: 10px;
+            border-radius: 40px;
+            letter-spacing: 3px;
+            font-family: 'Orbitron', monospace;
+            color: #3eff8e;
+            text-shadow: 0 0 6px #00cc66;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(0, 255, 130, 0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        /* Grade de botões */
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        button {
+            padding: 16px 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            border: none;
+            border-radius: 28px;
+            background: linear-gradient(145deg, #131d2a, #0a111f);
+            color: #34ff8c;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 5px 0 #02070e;
+            letter-spacing: 1px;
+            backdrop-filter: blur(4px);
+            border: 0.5px solid rgba(0, 255, 150, 0.3);
+        }
+
+        button:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #000;
+        }
+
+        button:hover {
+            background: #1f352f;
+            color: #bfffbf;
+            box-shadow: 0 0 12px rgba(0, 255, 100, 0.5);
+            border-color: #8effb2;
+            text-shadow: 0 0 4px #00ffaa;
+        }
+
+        /* Botões especiais */
+        .btn-clear {
+            background: linear-gradient(145deg, #2a1a1a, #1f0f0f);
+            color: #ff6363;
+            box-shadow: 0 5px 0 #1a0505;
+            border-color: rgba(255, 70, 70, 0.4);
+        }
+
+        .btn-clear:hover {
+            background: #471f1f;
+            color: #ffb3b3;
+            box-shadow: 0 0 12px #ff5555;
+        }
+
+        .btn-equals {
+            background: linear-gradient(145deg, #164c2c, #0d3520);
+            color: #caffb2;
+            box-shadow: 0 5px 0 #0a2818;
+            font-size: 1.8rem;
+            font-weight: 900;
+        }
+
+        .btn-equals:hover {
+            background: #2b8552;
+            color: white;
+            text-shadow: 0 0 6px #0f0;
+        }
+
+        .operator {
+            background: linear-gradient(145deg, #1a2b2f, #0e2026);
+            color: #5effbc;
+            font-weight: 800;
+        }
+
+        /* Botão zero ocupa 2 colunas em grid, mas podemos modificar */
+        .btn-zero {
+            grid-column: span 2;
+        }
+
+        /* Responsividade */
+        @media (max-width: 450px) {
+            .app {
+                width: 92vw;
+                padding: 16px;
+            }
+            .display {
+                font-size: 2rem;
+                padding: 14px;
+            }
+            button {
+                padding: 12px 0;
+                font-size: 1.2rem;
+            }
+            .clock {
+                font-size: 1rem;
+            }
+            .buttons {
+                gap: 10px;
+            }
+        }
+
+        /* indicador de energia */
+        .power-led {
+            text-align: right;
+            font-size: 0.7rem;
+            margin-top: 10px;
+            opacity: 0.7;
+            color: #3eff8e;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg"></div>
+    <div class="grid-overlay"></div>
+    <div class="floating-particles" id="particlesContainer"></div>
+
+    <div class="calculator-container">
+        <div class="app">
+            <div class="display-section">
+                <div class="display" id="display">0</div>
+            </div>
+            <div class="clock" id="clock">--:--:--</div>
+            <div class="buttons">
+                <button class="btn-clear" onclick="clearDisplay()">AC</button>
+                <button class="operator" onclick="append('/')">÷</button>
+                <button class="operator" onclick="append('*')">×</button>
+                <button class="operator" onclick="append('-')">−</button>
+
+                <button onclick="append('7')">7</button>
+                <button onclick="append('8')">8</button>
+                <button onclick="append('9')">9</button>
+                <button class="operator" onclick="append('+')">+</button>
+
+                <button onclick="append('4')">4</button>
+                <button onclick="append('5')">5</button>
+                <button onclick="append('6')">6</button>
+                <button class="btn-equals" onclick="calculate()">=</button>
+
+                <button onclick="append('1')">1</button>
+                <button onclick="append('2')">2</button>
+                <button onclick="append('3')">3</button>
+                <button onclick="append('.')">.</button>
+                
+                <button class="btn-zero" onclick="append('0')">0</button>
+                <button class="operator" onclick="backspace()">⌫</button>
+            </div>
+            <div class="power-led">⚡ NEXUS • LIVE</div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos
+        const displayElement = document.getElementById('display');
+        
+        // Função para atualizar display com tratamento seguro
+        function updateDisplay(value) {
+            if (value === undefined || value === null) value = '0';
+            let strValue = String(value);
+            // Limitar tamanho para não quebrar layout
+            if (strValue.length > 24) {
+                strValue = strValue.slice(0, 22) + '…';
+            }
+            displayElement.innerText = strValue;
+        }
+
+        // Adicionar valor ao display
+        function append(value) {
+            let current = displayElement.innerText;
+            // Evita múltiplos zeros à esquerda
+            if (current === '0' && value !== '.') {
+                current = '';
+            }
+            // Prevenir múltiplos operadores consecutivos
+            const lastChar = current.slice(-1);
+            const operators = ['+', '-', '*', '/', '×', '÷'];
+            const mappedValue = mapOperator(value);
+            
+            if (operators.includes(lastChar) && operators.includes(mappedValue)) {
+                // substitui o último operador
+                current = current.slice(0, -1) + mappedValue;
+                updateDisplay(current);
+                return;
+            }
+            
+            // Prevenir pontos múltiplos no último número
+            if (value === '.') {
+                const parts = current.split(/[\+\-\*\/×÷]/);
+                const lastNumber = parts[parts.length - 1];
+                if (lastNumber.includes('.')) return;
+            }
+            
+            // Concatena valores mapeados
+            let finalVal = current + mappedValue;
+            updateDisplay(finalVal);
+        }
+        
+        // Mapeamento visual para operadores internos (eval usa * e /)
+        function mapOperator(op) {
+            if (op === '÷') return '/';
+            if (op === '×') return '*';
+            if (op === '−') return '-';
+            return op;
+        }
+        
+        // Transforma display mostrando sinais amigáveis mas eval internamente
+        function prepareForEval(expression) {
+            let expr = expression;
+            expr = expr.replace(/×/g, '*');
+            expr = expr.replace(/÷/g, '/');
+            expr = expr.replace(/−/g, '-');
+            return expr;
+        }
+        
+        // Cálculo seguro com eval e tratamento de erro
+        function calculate() {
+            let expression = displayElement.innerText;
+            if (expression === 'Erro' || expression === '') {
+                displayElement.innerText = '0';
+                return;
+            }
+            
+            try {
+                let sanitized = prepareForEval(expression);
+                // Evita avaliação insegura: permite apenas números, operadores, pontos e parênteses implícitos
+                if (!/^[\d+\-*/.()\s]+$/.test(sanitized)) {
+                    throw new Error('Expressão inválida');
+                }
+                // eslint-disable-next-line no-eval
+                let result = eval(sanitized);
+                if (result === Infinity || result === -Infinity || isNaN(result)) {
+                    throw new Error('Math Error');
+                }
+                // Arredondamento elegante
+                if (typeof result === 'number' && !Number.isInteger(result)) {
+                    result = parseFloat(result.toFixed(8));
+                }
+                // exibir resultado
+                let resultStr = String(result);
+                if (resultStr.length > 20) {
+                    resultStr = parseFloat(result).toExponential(8);
+                }
+                updateDisplay(resultStr);
+            } catch (error) {
+                updateDisplay('Erro');
+                setTimeout(() => {
+                    if (displayElement.innerText === 'Erro') {
+                        clearDisplay();
+                    }
+                }, 1500);
+            }
+        }
+        
+        // Limpar display
+        function clearDisplay() {
+            updateDisplay('0');
+        }
+        
+        // Função backspace (apagar último caractere)
+        function backspace() {
+            let current = displayElement.innerText;
+            if (current === 'Erro') {
+                clearDisplay();
+                return;
+            }
+            if (current.length === 1 || (current.length === 2 && current.startsWith('0'))) {
+                updateDisplay('0');
+            } else {
+                let newVal = current.slice(0, -1);
+                if (newVal === '') newVal = '0';
+                updateDisplay(newVal);
+            }
+        }
+        
+        // Relógio com efeito profissional e atualização
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            const clockElement = document.getElementById('clock');
+            if (clockElement) {
+                clockElement.innerText = `${h}:${m}:${s}`;
+                // Pequeno toque de brilho animado no relógio - pelo CSS shine
+            }
+        }
+        
+        // Gerar partículas flutuantes de fundo
+        function createParticles() {
+            const container = document.getElementById('particlesContainer');
+            if (!container) return;
+            const particleCount = 48;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                const size = Math.random() * 6 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.animationDuration = `${Math.random() * 12 + 8}s`;
+                particle.style.animationDelay = `${Math.random() * 10}s`;
+                particle.style.opacity = Math.random() * 0.4 + 0.1;
+                particle.style.background = `radial-gradient(circle, rgba(${80 + Math.random() * 80}, 255, ${120 + Math.random() * 100}, 0.6), transparent)`;
+                container.appendChild(particle);
+            }
+        }
+        
+        // Efeito de digitação + ripple ao clicar nos botões (feedback adicional)
+        function addRippleEffect() {
+            const btns = document.querySelectorAll('button');
+            btns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple-effect');
+                    ripple.style.position = 'absolute';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.backgroundColor = 'rgba(0, 255, 100, 0.5)';
+                    ripple.style.width = '20px';
+                    ripple.style.height = '20px';
+                    ripple.style.transform = 'scale(1)';
+                    ripple.style.pointerEvents = 'none';
+                    ripple.style.left = `${e.offsetX}px`;
+                    ripple.style.top = `${e.offsetY}px`;
+                    ripple.style.transition = 'transform 0.4s ease-out, opacity 0.5s';
+                    ripple.style.zIndex = '999';
+                    btn.style.position = 'relative';
+                    btn.style.overflow = 'hidden';
+                    btn.appendChild(ripple);
+                    setTimeout(() => {
+                        ripple.style.transform = 'scale(12)';
+                        ripple.style.opacity = '0';
+                        setTimeout(() => ripple.remove(), 400);
+                    }, 10);
+                });
+            });
+        }
+        
+        // Teclado suporte extra
+        function handleKeyboard(e) {
+            const key = e.key;
+            const numbers = ['0','1','2','3','4','5','6','7','8','9'];
+            const operators = ['+', '-', '*', '/'];
+            if (numbers.includes(key)) {
+                e.preventDefault();
+                append(key);
+            } else if (operators.includes(key)) {
+                e.preventDefault();
+                if (key === '*') append('×');
+                else if (key === '/') append('÷');
+                else if (key === '-') append('−');
+                else append(key);
+            } else if (key === '.') {
+                e.preventDefault();
+                append('.');
+            } else if (key === 'Enter' || key === '=') {
+                e.preventDefault();
+                calculate();
+            } else if (key === 'Backspace') {
+                e.preventDefault();
+                backspace();
+            } else if (key === 'Escape' || key === 'Delete') {
+                e.preventDefault();
+                clearDisplay();
+            }
+        }
+        
+        // Prevenir erros de eval com overflow + tratamento estético
+        function preventInvalidExpression() {
+            // já tratado no calculate
+        }
+        
+        // Inicialização com animações e remoção de bugs da versão original
+        window.onload = () => {
+            updateClock();
+            setInterval(updateClock, 1000);
+            createParticles();
+            addRippleEffect();
+            window.addEventListener('keydown', handleKeyboard);
+            
+            // Garantir que display não fique com bugs de NaN
+            if (displayElement.innerText === '0') {}
+            // corrigir se houver qualquer resquício de erro
+        };
+        
+        // Expor 
